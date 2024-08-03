@@ -8,7 +8,7 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Container(
-          padding: const EdgeInsetsDirectional.fromSTEB(20, 110, 20, 0),
+          padding: const EdgeInsetsDirectional.fromSTEB(30, 110, 30, 0),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
@@ -57,34 +57,39 @@ class LoginPage extends StatelessWidget {
               const SizedBox(
                 height: 20,
               ),
-              TextField(
-                decoration: InputDecoration(
-                    hintText: "Enter your email...",
-                    filled: true,
-                    fillColor: const Color(0xFF101213),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none)),
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Enter your password...',
-                  filled: true,
-                  fillColor: const Color(0xFF101213),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide.none,
+              Column(
+                children: [
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: "Enter your email...",
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.all(15),
+                      filled: true,
+                      fillColor: const Color(0xFF101213),
+                    ),
                   ),
-                  suffixIcon: const Icon(Icons.visibility_off),
-                ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: 'Enter your password...',
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none),
+                      contentPadding: const EdgeInsets.all(15),
+                      filled: true,
+                      fillColor: const Color(0xFF101213),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(
                 height: 20,
               ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   TextButton(
                       onPressed: () {}, child: const Text("Forgot Password?")),
