@@ -12,23 +12,28 @@ class LoginPage extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              const Column(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    radius: 40,
-                    child: Icon(Icons.close, color: Colors.white, size: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        radius: 40,
+                        child: Icon(Icons.close, color: Colors.white, size: 40),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'SubMag',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'SubMag',
+                        style: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -92,11 +97,16 @@ class LoginPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   TextButton(
-                      onPressed: () {}, child: const Text("Forgot Password?")),
+                    onPressed: () {},
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(color: Color(0xFF9489F5)),
+                    ),
+                  ),
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.tealAccent,
+                      backgroundColor: const Color(0xFF39D2C0),
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 30, vertical: 15),
@@ -116,7 +126,7 @@ class LoginPage extends StatelessWidget {
                 TextButton(
                   onPressed: () {},
                   child: const Text('Create →',
-                      style: TextStyle(color: Colors.blue)),
+                      style: TextStyle(color: Color(0xFF9489F5))),
                 ),
               ])
             ],
