@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final _LoginModel = LoginPageModel();
+  final _loginModel = LoginPageModel();
 
   @override
   void dispose() {
@@ -22,11 +22,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _submitLogin() {
-    _LoginModel.email = emailController.text;
-    _LoginModel.password = passwordController.text;
+    _loginModel.email = emailController.text;
+    _loginModel.password = passwordController.text;
 
-    debugPrint('Email: ${_LoginModel.email}');
-    debugPrint('Password: ${_LoginModel.password}');
+    debugPrint('Email: ${_loginModel.email}');
+    debugPrint('Password: ${_loginModel.password}');
   }
 
   @override
