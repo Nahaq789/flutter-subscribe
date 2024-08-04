@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:subscribe/models/login_page_model.dart';
+import 'package:subscribe/models/login_model.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,7 +12,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
-  final _loginModel = LoginPageModel();
+  final _loginModel = LoginModel(email: "", password: "");
 
   @override
   void dispose() {
