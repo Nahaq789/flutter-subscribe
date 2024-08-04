@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:subscribe/screens/login_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
-  runApp(SubscribeApp());
+void main() async {
+  await dotenv.load(fileName: '.env.dev');
+
+  runApp(const SubscribeApp());
 }
 
 class SubscribeApp extends StatelessWidget {
