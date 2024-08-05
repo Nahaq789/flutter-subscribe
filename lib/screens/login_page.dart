@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:subscribe/models/login_model.dart';
@@ -31,14 +33,22 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    double imageSize = max(MediaQuery.of(context).size.width * 0.1, 100.0);
+    double mediumFontSize = max(MediaQuery.of(context).size.width * 0.02, 13.0);
+    double largeFontSize = max(MediaQuery.of(context).size.width * 0.05, 24.0);
+
+    double padding = MediaQuery.of(context).size.width;
+    debugPrint((imageSize).toString());
+
     String appName = dotenv.get('APP_NAME');
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
           child: Container(
-            padding: const EdgeInsetsDirectional.fromSTEB(30, 50, 30, 0),
+            padding: EdgeInsetsDirectional.fromSTEB(
+                padding * 0.069, padding * 0.116, padding * 0.069, 0),
             child: Column(
-              mainAxisSize: MainAxisSize.max,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Column(
                   children: [
@@ -48,19 +58,19 @@ class _LoginPageState extends State<LoginPage> {
                         Image.asset(
                           "images/app_logo.png",
                           fit: BoxFit.cover,
-                          width: 100,
-                          height: 100,
+                          width: imageSize,
+                          height: imageSize,
                         )
                       ],
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: padding * 0.023),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           appName,
-                          style: const TextStyle(
-                            fontSize: 24,
+                          style: TextStyle(
+                            fontSize: largeFontSize,
                             fontWeight: FontWeight.bold,
                             fontFamily: 'Roboto Mono',
                             fontStyle: FontStyle.italic,
@@ -70,31 +80,33 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 40,
+                SizedBox(
+                  height: padding * 0.093,
                 ),
-                const Row(
+                Row(
                   children: [
                     Text(
                       'Welcome back',
-                      style:
-                          TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          fontSize: largeFontSize, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 10,
+                SizedBox(
+                  height: padding * 0.023,
                 ),
-                const Row(
+                Row(
                   children: [
                     Text(
                       'Login to access your account below.',
-                      style: TextStyle(color: Color(0xFF39D2C0)),
+                      style: TextStyle(
+                          color: const Color(0xFF39D2C0),
+                          fontSize: mediumFontSize),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
+                SizedBox(
+                  height: padding * 0.046,
                 ),
                 Column(
                   children: [
@@ -110,7 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       controller: emailController,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: padding * 0.046),
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
@@ -126,17 +138,19 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
+                SizedBox(
+                  height: padding * 0.069,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     TextButton(
                       onPressed: () {},
-                      child: const Text(
+                      child: Text(
                         "Forgot Password?",
-                        style: TextStyle(color: Color(0xFF9489F5)),
+                        style: TextStyle(
+                            color: const Color(0xFF9489F5),
+                            fontSize: mediumFontSize),
                       ),
                     ),
                     ElevatedButton(
@@ -150,19 +164,27 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: const Text("Login"),
+                      child: Text(
+                        "Login",
+                        style: TextStyle(fontSize: mediumFontSize),
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(
-                  height: 20,
+                SizedBox(
+                  height: padding * 0.046,
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  const Text("Don't have an account?"),
+                  Text(
+                    "Don't have an account?",
+                    style: TextStyle(fontSize: mediumFontSize),
+                  ),
                   TextButton(
                     onPressed: () {},
-                    child: const Text('Create →',
-                        style: TextStyle(color: Color(0xFF9489F5))),
+                    child: Text('Create →',
+                        style: TextStyle(
+                            color: const Color(0xFF9489F5),
+                            fontSize: mediumFontSize)),
                   ),
                 ])
               ],
