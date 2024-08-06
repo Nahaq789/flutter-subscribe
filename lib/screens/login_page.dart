@@ -2,19 +2,29 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subscribe/models/login_model.dart';
+import 'package:subscribe/services/provider/auth_provider.dart';
 
-class LoginPage extends StatefulWidget {
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final _loginModel = LoginModel(email: "", password: "");
+class LoginPageState extends ConsumerState<LoginPage> {
+  late TextEditingController emailController;
+  late TextEditingController passwordController;
+  late LoginModel _loginModel;
+
+  @override
+  void initState() {
+    super.initState();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    _loginModel = LoginModel(email: "", password: "");
+  }
 
   @override
   void dispose() {
@@ -29,6 +39,8 @@ class _LoginPageState extends State<LoginPage> {
 
     debugPrint('Email: ${_loginModel.email}');
     debugPrint('Password: ${_loginModel.password}');
+
+    ref.read(authServiceProvider).login(model: _loginModel);
   }
 
   @override
@@ -38,7 +50,6 @@ class _LoginPageState extends State<LoginPage> {
     double largeFontSize = max(MediaQuery.of(context).size.width * 0.05, 24.0);
 
     double padding = MediaQuery.of(context).size.width;
-    debugPrint((imageSize).toString());
 
     String appName = dotenv.get('APP_NAME');
     return Scaffold(
