@@ -17,6 +17,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
   late LoginModel _loginModel;
+  bool isLoginSuccess = false;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -33,14 +35,23 @@ class LoginPageState extends ConsumerState<LoginPage> {
     super.dispose();
   }
 
-  void _submitLogin() {
+  void _submitLogin() async {
     _loginModel.email = emailController.text;
     _loginModel.password = passwordController.text;
 
-    debugPrint('Email: ${_loginModel.email}');
-    debugPrint('Password: ${_loginModel.password}');
+    final authService = ref.read(authServiceProvider);
+    final loginResult = await authService.login(model: _loginModel);
 
-    ref.read(authServiceProvider).login(model: _loginModel);
+    if (!mounted) return;
+
+    if (loginResult.success && loginResult.errorMessage == '') {
+      Navigator.of(context).pushReplacementNamed('/');
+    } else {
+      setState(() {
+        isLoginSuccess = loginResult.success;
+        errorMessage = loginResult.errorMessage;
+      });
+    }
   }
 
   @override
@@ -197,7 +208,20 @@ class LoginPageState extends ConsumerState<LoginPage> {
                             color: const Color(0xFF9489F5),
                             fontSize: mediumFontSize)),
                   ),
-                ])
+                ]),
+                SizedBox(
+                  height: padding * 0.046,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (errorMessage != null && !isLoginSuccess)
+                      Text(
+                        errorMessage!,
+                        style: const TextStyle(color: Colors.red),
+                      )
+                  ],
+                )
               ],
             ),
           ),
