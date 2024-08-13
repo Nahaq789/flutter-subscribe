@@ -144,7 +144,7 @@ google-services.json
 GoogleService-Info.plist
 firebase_app_id_file.json
 firebase_options.dart
-
+firepit-log.txt
 
 # Crashlytics関連
 crashlytics-build.properties
@@ -184,3 +184,6 @@ build/
 
 # 環境変数ファイル（既に含まれていますが、念のため）
 .env*
+
+ios/Debug.xcconfig
+ios/Config.xcconfig
