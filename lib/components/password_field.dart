@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,16 +27,22 @@ class CustomInputField extends ConsumerStatefulWidget {
 
 class CustomerInputFieldState extends ConsumerState<CustomInputField> {
   bool _isObscure = true;
+
   @override
   Widget build(BuildContext context) {
+    final double hintFontSize =
+        max(MediaQuery.of(context).size.width * 0.0254, 13);
+
+    print(MediaQuery.of(context).size.width);
     return TextField(
       controller: widget.textController,
-      obscureText: _isObscure,
+      obscureText: _isObscure ? widget.isPassword : false,
       onChanged: widget.onChanged,
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
         hintText: widget.hintText,
+        hintStyle: TextStyle(fontSize: hintFontSize),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none),
