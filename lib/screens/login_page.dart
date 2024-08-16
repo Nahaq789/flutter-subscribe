@@ -3,8 +3,12 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subscribe/components/password_field.dart';
 import 'package:subscribe/models/login_model.dart';
 import 'package:subscribe/services/provider/auth_provider.dart';
+
+final emailProvider = StateProvider<String>((ref) => '');
+final passwordProvider = StateProvider<String>((ref) => '');
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -45,7 +49,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
     if (!mounted) return;
 
     if (loginResult.success && loginResult.errorMessage == '') {
-      Navigator.of(context).pushReplacementNamed('/');
+      Navigator.of(context).pushReplacementNamed('/register');
     } else {
       setState(() {
         isLoginSuccess = loginResult.success;
@@ -57,7 +61,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
   @override
   Widget build(BuildContext context) {
     double imageSize = max(MediaQuery.of(context).size.width * 0.1, 100.0);
-    double mediumFontSize = max(MediaQuery.of(context).size.width * 0.02, 13.0);
+    double mediumFontSize = max(MediaQuery.of(context).size.width * 0.02, 15.0);
     double largeFontSize = max(MediaQuery.of(context).size.width * 0.05, 24.0);
 
     double padding = MediaQuery.of(context).size.width;
@@ -102,9 +106,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: padding * 0.093,
-                ),
+                SizedBox(height: padding * 0.093),
                 Row(
                   children: [
                     Text(
@@ -114,9 +116,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: padding * 0.023,
-                ),
+                SizedBox(height: padding * 0.023),
                 Row(
                   children: [
                     Text(
@@ -127,37 +127,24 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: padding * 0.046,
-                ),
+                SizedBox(height: padding * 0.1),
                 Column(
                   children: [
-                    TextField(
-                      decoration: InputDecoration(
-                        hintText: "Enter your email...",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.all(15),
-                        filled: true,
-                        fillColor: const Color(0xFF101213),
-                      ),
-                      controller: emailController,
+                    CustomInputField(
+                      labelText: 'Email Address',
+                      hintText: 'Enter your email...',
+                      isPassword: false,
+                      textController: emailController,
+                      onChanged: (value) => {emailController.text = value},
                     ),
                     SizedBox(height: padding * 0.046),
-                    TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: 'Enter your password...',
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none),
-                        contentPadding: const EdgeInsets.all(15),
-                        filled: true,
-                        fillColor: const Color(0xFF101213),
-                      ),
-                      controller: passwordController,
-                    ),
+                    CustomInputField(
+                      labelText: 'Password',
+                      hintText: "Enter your password...",
+                      isPassword: true,
+                      textController: passwordController,
+                      onChanged: (value) => {passwordController.text = value},
+                    )
                   ],
                 ),
                 SizedBox(
@@ -202,7 +189,9 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     style: TextStyle(fontSize: mediumFontSize),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('/register');
+                    },
                     child: Text('Create →',
                         style: TextStyle(
                             color: const Color(0xFF9489F5),
