@@ -132,12 +132,41 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: padding * 0.046),
+                SizedBox(height: padding * 0.07),
                 Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF39D2C0),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 30, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        "Create Account",
+                        style: TextStyle(fontSize: mediumFontSize),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: padding * 0.07),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF101213),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                      vertical: padding * 0.001, horizontal: padding * 0.001),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
                         onPressed: () {
                           Navigator.of(context).pushReplacementNamed('/');
                         },
@@ -147,9 +176,12 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                             color: const Color(0xFF9489F5),
                             fontSize: mediumFontSize,
                           ),
-                        ))
-                  ],
-                )
+                        ),
+                      ),
+                      const Text('Already have an account?'),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
