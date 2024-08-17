@@ -60,96 +60,82 @@ class LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    double imageSize = max(MediaQuery.of(context).size.width * 0.1, 100.0);
-    double mediumFontSize = max(MediaQuery.of(context).size.width * 0.02, 15.0);
-    double largeFontSize = max(MediaQuery.of(context).size.width * 0.05, 24.0);
+    final size = MediaQuery.of(context).size;
+    final isTablet = size.width > 600;
 
-    double padding = MediaQuery.of(context).size.width;
+    double imageSize =
+        isTablet ? size.width * 0.15 : max(size.width * 0.2, 80.0);
+    double mediumFontSize = isTablet ? 18.0 : max(size.width * 0.04, 14.0);
+    double largeFontSize = isTablet ? 32.0 : max(size.width * 0.06, 20.0);
+
+    double horizontalPadding = size.width * (isTablet ? 0.1 : 0.05);
+    double verticalPadding = size.height * 0.05;
 
     String appName = dotenv.get('APP_NAME');
+
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsetsDirectional.fromSTEB(
-                padding * 0.069, padding * 0.116, padding * 0.069, 0),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding,
+              vertical: verticalPadding,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          "images/app_logo.png",
-                          fit: BoxFit.cover,
-                          width: imageSize,
-                          height: imageSize,
-                        )
-                      ],
-                    ),
-                    SizedBox(height: padding * 0.023),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          appName,
-                          style: TextStyle(
-                            fontSize: largeFontSize,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: 'Roboto Mono',
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Image.asset(
+                  "images/app_logo.png",
+                  fit: BoxFit.cover,
+                  width: imageSize,
+                  height: imageSize,
                 ),
-                SizedBox(height: padding * 0.093),
-                Row(
-                  children: [
-                    Text(
-                      'Welcome back',
-                      style: TextStyle(
-                          fontSize: largeFontSize, fontWeight: FontWeight.bold),
-                    ),
-                  ],
+                SizedBox(height: size.height * 0.02),
+                Text(
+                  appName,
+                  style: TextStyle(
+                    fontSize: largeFontSize,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Roboto Mono',
+                    fontStyle: FontStyle.italic,
+                  ),
                 ),
-                SizedBox(height: padding * 0.023),
-                Row(
-                  children: [
-                    Text(
-                      'Login to access your account below.',
-                      style: TextStyle(
-                          color: const Color(0xFF39D2C0),
-                          fontSize: mediumFontSize),
-                    ),
-                  ],
+                SizedBox(height: size.height * 0.05),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Welcome back',
+                    style: TextStyle(
+                        fontSize: largeFontSize, fontWeight: FontWeight.bold),
+                  ),
                 ),
-                SizedBox(height: padding * 0.1),
-                Column(
-                  children: [
-                    CustomInputField(
-                      labelText: 'Email Address',
-                      hintText: 'Enter your email...',
-                      isPassword: false,
-                      textController: emailController,
-                      onChanged: (value) => {emailController.text = value},
-                    ),
-                    SizedBox(height: padding * 0.046),
-                    CustomInputField(
-                      labelText: 'Password',
-                      hintText: "Enter your password...",
-                      isPassword: true,
-                      textController: passwordController,
-                      onChanged: (value) => {passwordController.text = value},
-                    )
-                  ],
+                SizedBox(height: size.height * 0.01),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Login to access your account below.',
+                    style: TextStyle(
+                        color: const Color(0xFF39D2C0),
+                        fontSize: mediumFontSize),
+                  ),
                 ),
-                SizedBox(
-                  height: padding * 0.069,
+                SizedBox(height: size.height * 0.05),
+                CustomInputField(
+                  labelText: 'Email Address',
+                  hintText: 'Enter your email...',
+                  isPassword: false,
+                  textController: emailController,
+                  onChanged: (value) => {emailController.text = value},
                 ),
+                SizedBox(height: size.height * 0.02),
+                CustomInputField(
+                  labelText: 'Password',
+                  hintText: "Enter your password...",
+                  isPassword: true,
+                  textController: passwordController,
+                  onChanged: (value) => {passwordController.text = value},
+                ),
+                SizedBox(height: size.height * 0.03),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
@@ -167,8 +153,10 @@ class LoginPageState extends ConsumerState<LoginPage> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF39D2C0),
                         foregroundColor: Colors.black,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 15),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.05,
+                          vertical: size.height * 0.015,
+                        ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(30),
                         ),
@@ -180,37 +168,36 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ],
                 ),
-                SizedBox(
-                  height: padding * 0.046,
-                ),
-                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(
-                    "Don't have an account?",
-                    style: TextStyle(fontSize: mediumFontSize),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pushReplacementNamed('/register');
-                    },
-                    child: Text('Create →',
-                        style: TextStyle(
-                            color: const Color(0xFF9489F5),
-                            fontSize: mediumFontSize)),
-                  ),
-                ]),
-                SizedBox(
-                  height: padding * 0.046,
-                ),
+                SizedBox(height: size.height * 0.03),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    if (errorMessage != null && !isLoginSuccess)
-                      Text(
-                        errorMessage!,
-                        style: const TextStyle(color: Colors.red),
-                      )
+                    Text(
+                      "Don't have an account?",
+                      style: TextStyle(fontSize: mediumFontSize),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed('/register');
+                      },
+                      child: Text(
+                        'Create →',
+                        style: TextStyle(
+                            color: const Color(0xFF9489F5),
+                            fontSize: mediumFontSize),
+                      ),
+                    ),
                   ],
-                )
+                ),
+                if (errorMessage != null && !isLoginSuccess)
+                  Padding(
+                    padding: EdgeInsets.only(top: size.height * 0.02),
+                    child: Text(
+                      errorMessage!,
+                      style: TextStyle(
+                          color: Colors.red, fontSize: mediumFontSize),
+                    ),
+                  ),
               ],
             ),
           ),
