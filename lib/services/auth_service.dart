@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_guid/flutter_guid.dart';
-import 'package:subscribe/domain/exceptions/auth_exception.dart';
+import 'package:subscribe/exceptions/auth_exception.dart';
 import 'package:subscribe/domain/models/login_model.dart';
 import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/services/auth_i_service.dart';
