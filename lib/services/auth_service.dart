@@ -5,17 +5,19 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_guid/flutter_guid.dart';
+import 'package:subscribe/domain/repository/auth_i_repository.dart';
+import 'package:subscribe/domain/repository/token_i_repository.dart';
 import 'package:subscribe/exceptions/auth_exception.dart';
 import 'package:subscribe/domain/models/login_model.dart';
 import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/services/auth_i_service.dart';
 import 'package:http/http.dart' as http;
-import 'package:subscribe/services/token_storage_i_service.dart';
 
 class AuthService implements IAuthService {
-  late final ITokenStorageService _tokenStorageService;
+  late final ITokenRepository _tokenRepository;
+  late final IAuthRepository _authRepository;
 
-  AuthService(this._tokenStorageService);
+  AuthService(this._authRepository, this._tokenRepository);
 
   @override
   Future<TokenModel> login({required LoginModel model}) async {
@@ -36,8 +38,7 @@ class AuthService implements IAuthService {
       final Map<String, dynamic> decodeRes = json.decode(response.body);
 
       if (response.statusCode == 200) {
-        await _tokenStorageService.saveToken(
-            token: TokenModel.fromJson(decodeRes));
+        await _tokenRepository.saveToken(token: TokenModel.fromJson(decodeRes));
         return TokenModel.fromJson(decodeRes);
       }
       if (response.statusCode == 401) {
