@@ -1,4 +1,4 @@
-import 'package:subscribe/models/token_model.dart';
+import 'package:subscribe/domain/models/token_model.dart';
 
 abstract interface class ITokenStorageService {
   Future<void> saveToken({required TokenModel token});

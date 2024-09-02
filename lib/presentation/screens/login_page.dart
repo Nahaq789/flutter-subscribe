@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:subscribe/components/password_field.dart';
-import 'package:subscribe/models/login_model.dart';
+import 'package:subscribe/presentation/components/password_field.dart';
+import 'package:subscribe/domain/models/login_model.dart';
 import 'package:subscribe/services/provider/auth_provider.dart';
 
 final emailProvider = StateProvider<String>((ref) => '');

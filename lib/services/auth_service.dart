@@ -5,9 +5,9 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_guid/flutter_guid.dart';
-import 'package:subscribe/exceptions/auth_exception.dart';
-import 'package:subscribe/models/login_model.dart';
-import 'package:subscribe/models/token_model.dart';
+import 'package:subscribe/domain/exceptions/auth_exception.dart';
+import 'package:subscribe/domain/models/login_model.dart';
+import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/services/auth_i_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:subscribe/services/token_storage_i_service.dart';
@@ -22,7 +22,7 @@ class AuthService implements IAuthService {
     String baseURL = dotenv.get('API_URL');
     try {
       final response = await http
-          .post(Uri.parse('${baseURL}Auth/login'),
+          .post(Uri.parse('${baseURL}auth/signin'),
               headers: <String, String>{
                 'Content-Type': 'application/json; charset=UTF-8',
                 'x-requestId': Guid.newGuid.toString()
@@ -73,5 +73,23 @@ class AuthService implements IAuthService {
           errorMessage:
               'An unexpected error occurred. Please try again later.');
     }
+  }
+
+  @override
+  Future registerAccount({required LoginModel model}) async {
+    String baseURL = dotenv.get('API_URL');
+    try {
+      final response = await http
+          .post(Uri.parse('${baseURL}auth/signin'),
+              headers: <String, String>{
+                'Content-Type': 'application/json; charset=UTF-8',
+                'x-requestId': Guid.newGuid.toString()
+              },
+              body: jsonEncode(<String, String>{
+                'email': model.email,
+                'password': model.password
+              }))
+          .timeout(const Duration(seconds: 10));
+    } catch (e) {}
   }
 }

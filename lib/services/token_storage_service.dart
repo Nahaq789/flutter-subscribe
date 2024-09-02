@@ -1,6 +1,6 @@
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:subscribe/models/token_model.dart';
+import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/services/token_storage_i_service.dart';
 
 class TokenStorageService implements ITokenStorageService {
