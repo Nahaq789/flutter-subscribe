@@ -9,9 +9,8 @@ class TokenModel {
 
   factory TokenModel.fromJson(Map<String, dynamic> json) {
     return TokenModel(
-        success: json['success'],
-        jwt: json['token'],
-        refreshToken: json['refreshToken'],
-        errorMessage: json['errorMessage']);
+      jwt: json['token'],
+      refreshToken: json['refreshToken'],
+    );
   }
 }
