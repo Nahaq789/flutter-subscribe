@@ -1,7 +1,7 @@
-import 'package:subscribe/domain/models/login_model.dart';
-import 'package:subscribe/domain/models/token_model.dart';
+import 'package:subscribe/presentation/dto/auth_request.dart';
+import 'package:subscribe/presentation/dto/auth_response.dart';
 
 abstract interface class IAuthService {
-  Future<TokenModel> login({required LoginModel model});
-  Future registerAccount({required LoginModel model});
+  Future<AuthResponse> login({required AuthRequest auth});
+  Future<void> registerAccount({required AuthRequest auth});
 }

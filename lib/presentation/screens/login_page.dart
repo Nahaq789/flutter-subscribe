@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subscribe/presentation/components/password_field.dart';
-import 'package:subscribe/domain/models/login_model.dart';
+import 'package:subscribe/presentation/dto/auth_request.dart';
 import 'package:subscribe/services/provider/auth_provider.dart';
 
 final emailProvider = StateProvider<String>((ref) => '');
@@ -20,7 +20,7 @@ class LoginPage extends ConsumerStatefulWidget {
 class LoginPageState extends ConsumerState<LoginPage> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
-  late LoginModel _loginModel;
+  late AuthRequest _loginRequest;
   bool isLoginSuccess = false;
   String? errorMessage;
 
@@ -29,7 +29,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
     super.initState();
     emailController = TextEditingController();
     passwordController = TextEditingController();
-    _loginModel = LoginModel(email: "", password: "");
+    _loginRequest = AuthRequest(email: "", password: "", verifyCode: "");
   }
 
   @override
@@ -40,19 +40,19 @@ class LoginPageState extends ConsumerState<LoginPage> {
   }
 
   void _submitLogin() async {
-    _loginModel.email = emailController.text;
-    _loginModel.password = passwordController.text;
+    _loginRequest.email = emailController.text;
+    _loginRequest.password = passwordController.text;
 
     final authService = ref.read(authServiceProvider);
-    final loginResult = await authService.login(model: _loginModel);
+    final loginResult = await authService.login(auth: _loginRequest);
 
     if (!mounted) return;
 
-    if (loginResult.success && loginResult.errorMessage == '') {
+    if (loginResult.isAuth && loginResult.errorMessage == '') {
       Navigator.of(context).pushReplacementNamed('/register');
     } else {
       setState(() {
-        isLoginSuccess = loginResult.success;
+        isLoginSuccess = loginResult.isAuth;
         errorMessage = loginResult.errorMessage;
       });
     }

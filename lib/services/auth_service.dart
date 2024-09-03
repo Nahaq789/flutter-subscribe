@@ -1,17 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_guid/flutter_guid.dart';
+import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/domain/repository/auth_i_repository.dart';
 import 'package:subscribe/domain/repository/token_i_repository.dart';
-import 'package:subscribe/exceptions/auth_exception.dart';
 import 'package:subscribe/domain/models/login_model.dart';
-import 'package:subscribe/domain/models/token_model.dart';
+import 'package:subscribe/presentation/dto/auth_request.dart';
+import 'package:subscribe/presentation/dto/auth_response.dart';
 import 'package:subscribe/services/auth_i_service.dart';
-import 'package:http/http.dart' as http;
 
 class AuthService implements IAuthService {
   late final ITokenRepository _tokenRepository;
@@ -20,77 +16,22 @@ class AuthService implements IAuthService {
   AuthService(this._authRepository, this._tokenRepository);
 
   @override
-  Future<TokenModel> login({required LoginModel model}) async {
-    String baseURL = dotenv.get('API_URL');
+  Future<AuthResponse> login({required AuthRequest auth}) async {
     try {
-      final response = await http
-          .post(Uri.parse('${baseURL}auth/signin'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-                'x-requestId': Guid.newGuid.toString()
-              },
-              body: jsonEncode(<String, String>{
-                'email': model.email,
-                'password': model.password
-              }))
-          .timeout(const Duration(seconds: 10));
-
+      final loginModel = LoginModel(email: auth.email, password: auth.password);
+      final response = await _authRepository.authenticate(model: loginModel);
       final Map<String, dynamic> decodeRes = json.decode(response.body);
 
-      if (response.statusCode == 200) {
-        await _tokenRepository.saveToken(token: TokenModel.fromJson(decodeRes));
-        return TokenModel.fromJson(decodeRes);
-      }
-      if (response.statusCode == 401) {
-        if (decodeRes['detail'] != null &&
-            decodeRes['title'] == 'Unauthorized') {
-          return TokenModel(
-              success: false,
-              errorMessage: 'Login failed. Incorrect email or password.');
-        }
-        throw AuthException('Authentication failed', 401);
-      }
-      throw HttpException('HTTP Error: ${response.statusCode}');
-    } on SocketException catch (e) {
-      FirebaseCrashlytics.instance
-          .recordError(e, StackTrace.current, reason: 'Network error');
-      return TokenModel(
-          errorMessage:
-              'A network error occurred. Please check your connection.');
-    } on TimeoutException catch (e) {
-      FirebaseCrashlytics.instance
-          .recordError(e, StackTrace.current, reason: 'Request timeout');
-      return TokenModel(
-          errorMessage:
-              'The server is not responding. Please try again later.');
-    } on FormatException catch (e) {
-      FirebaseCrashlytics.instance
-          .recordError(e, StackTrace.current, reason: 'Response parsing error');
-      return TokenModel(errorMessage: 'Unable to process the server response.');
-    } catch (e, stack) {
-      FirebaseCrashlytics.instance
-          .recordError(e, stack, reason: 'Unexpected error during login');
-      return TokenModel(
-          errorMessage:
-              'An unexpected error occurred. Please try again later.');
+      await _tokenRepository.saveToken(token: TokenModel.fromJson(decodeRes));
+
+      return AuthResponse(isAuth: true, errorMessage: "");
+    } catch (e) {
+      return AuthResponse(isAuth: false, errorMessage: e.toString());
     }
   }
 
   @override
-  Future registerAccount({required LoginModel model}) async {
-    String baseURL = dotenv.get('API_URL');
-    try {
-      final response = await http
-          .post(Uri.parse('${baseURL}auth/signin'),
-              headers: <String, String>{
-                'Content-Type': 'application/json; charset=UTF-8',
-                'x-requestId': Guid.newGuid.toString()
-              },
-              body: jsonEncode(<String, String>{
-                'email': model.email,
-                'password': model.password
-              }))
-          .timeout(const Duration(seconds: 10));
-    } catch (e) {}
+  Future<void> registerAccount({required AuthRequest auth}) async {
+    try {} catch (e) {}
   }
 }
