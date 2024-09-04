@@ -32,16 +32,18 @@ class AuthRepository implements IAuthRepository {
               }))
           .timeout(const Duration(seconds: 10));
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == HttpStatus.ok) {
         return response;
       }
-      if (response.statusCode == 401) {
-        throw AuthException('Authentication failed: ${response.body}', 401);
+      if (response.statusCode == HttpStatus.unauthorized) {
+        throw AuthException(response.body, 401);
       }
       throw HttpException('HTTP Error: ${response.statusCode}');
     } on SocketException catch (e) {
       FirebaseCrashlytics.instance
           .recordError(e, StackTrace.current, reason: 'Network error');
+      FirebaseCrashlytics.instance
+          .log('A network error occurred. Please check your connection.');
       throw AuthException(
           'A network error occurred. Please check your connection.', 500);
     } on TimeoutException catch (e) {
@@ -51,13 +53,12 @@ class AuthRepository implements IAuthRepository {
           'The server is not responding. Please try again later.', 500);
     } on FormatException catch (e) {
       FirebaseCrashlytics.instance
-          .recordError(e, StackTrace.current, reason: 'Response parsing error');
+          .recordError(e, StackTrace.current, reason: 'Parsing error');
       throw AuthException('Unable to process the server response.', 500);
     } catch (e, stack) {
       FirebaseCrashlytics.instance
           .recordError(e, stack, reason: 'Unexpected error during login');
-      throw AuthException(
-          'An unexpected error occurred. Please try again later.', 500);
+      rethrow;
     }
   }
 

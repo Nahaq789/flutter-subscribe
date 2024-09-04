@@ -13,6 +13,9 @@ class AuthResponse {
   /// This field may be empty if the authentication was successful.
   final String errorMessage;
 
+  /// An error status code.
+  final int statusCode;
+
   /// Creates a new [AuthResponse] instance.
   ///
   /// Both [isAuth] and [errorMessage] are required parameters.
@@ -22,5 +25,8 @@ class AuthResponse {
   /// var response = AuthResponse(isAuth: true, errorMessage: '');
   /// var errorResponse = AuthResponse(isAuth: false, errorMessage: 'Invalid credentials');
   /// ```
-  AuthResponse({required this.isAuth, required this.errorMessage});
+  AuthResponse(
+      {required this.isAuth,
+      required this.errorMessage,
+      required this.statusCode});
 }
