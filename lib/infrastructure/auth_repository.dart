@@ -14,7 +14,10 @@ import 'package:flutter_guid/flutter_guid.dart';
 import 'package:subscribe/exceptions/auth_exception.dart';
 
 class AuthRepository implements IAuthRepository {
+  late final _crashlyticsService;
   final String baseURL = dotenv.get('API_URL');
+
+  AuthRepository(this._crashlyticsService);
 
   @override
   Future<Response> authenticate({required LoginModel model}) async {
