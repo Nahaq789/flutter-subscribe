@@ -1,9 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subscribe/presentation/components/password_field.dart';
+import 'package:subscribe/presentation/dto/auth_request.dart';
 
 class RegisterAccountPage extends ConsumerStatefulWidget {
   const RegisterAccountPage({super.key});
@@ -16,6 +18,8 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
+  late AuthRequest _registerRequest;
+  String? _errorText;
 
   @override
   void initState() {
@@ -33,10 +37,27 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
     super.dispose();
   }
 
+  void _submitRegister() async {}
+
+  void _validPassword(String password) {
+    setState(() {
+      _errorText = _isValidPassword(password)
+          ? null
+          : 'Password must be at least 6 characters with upper and lowercase letters.';
+    });
+  }
+
+  bool _isValidPassword(String password) {
+    final passwordPattarn = RegExp(r'^(?=.*[a-z])(?=.*[A-Z]).{6,}$');
+    return passwordPattarn.hasMatch(password);
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
+
+    debugPrint(_errorText);
 
     double imageSize =
         isTablet ? size.width * 0.15 : max(size.width * 0.2, 80.0);
@@ -101,6 +122,10 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   isPassword: false,
                   textController: _emailController,
                   onChanged: (value) => _emailController.text = value,
+                  inputFormat: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'[a-zA-Z0-9@.+_-]'))
+                  ],
                 ),
                 SizedBox(height: size.height * 0.02),
                 CustomInputField(
@@ -108,7 +133,11 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   hintText: 'Enter your password...',
                   isPassword: true,
                   textController: _passwordController,
-                  onChanged: (value) => _passwordController.text = value,
+                  onChanged: (value) {
+                    _passwordController.text = value;
+                    _validPassword(value);
+                  },
+                  errorText: _errorText,
                 ),
                 SizedBox(height: size.height * 0.02),
                 CustomInputField(
@@ -135,7 +164,7 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                       ),
                     ),
                     child: Text(
-                      "Create Account",
+                      "Register Account",
                       style: TextStyle(fontSize: mediumFontSize),
                     ),
                   ),

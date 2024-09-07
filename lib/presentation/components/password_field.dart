@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class CustomInputField extends ConsumerStatefulWidget {
@@ -10,6 +11,8 @@ class CustomInputField extends ConsumerStatefulWidget {
   final TextEditingController textController;
   final ValueChanged<String> onChanged;
   final Function(String?)? varidator;
+  final List<TextInputFormatter>? inputFormat;
+  final String? errorText;
 
   const CustomInputField(
       {super.key,
@@ -18,7 +21,9 @@ class CustomInputField extends ConsumerStatefulWidget {
       required this.isPassword,
       required this.textController,
       required this.onChanged,
-      this.varidator});
+      this.varidator,
+      this.inputFormat,
+      this.errorText});
 
   @override
   CustomInputFieldState createState() => CustomInputFieldState();
@@ -55,14 +60,13 @@ class CustomInputFieldState extends ConsumerState<CustomInputField> {
     final double verticalPadding = isTablet ? 20.0 : 15.0;
     final double horizontalPadding = isTablet ? 20.0 : 15.0;
 
-    debugPrint(_focusNode.hasFocus.toString());
-
-    return TextField(
+    return TextFormField(
       controller: widget.textController,
       obscureText: widget.isPassword ? _isObscure : false,
       focusNode: _focusNode,
       onChanged: widget.onChanged,
       style: TextStyle(fontSize: labelFontSize),
+      inputFormatters: widget.inputFormat,
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: widget.labelText,
@@ -71,6 +75,8 @@ class CustomInputFieldState extends ConsumerState<CustomInputField> {
             color: _focusNode.hasFocus
                 ? const Color(0xFF9489F5)
                 : const Color(0xFFC0C0C0)),
+        errorText: widget.errorText,
+        errorMaxLines: 3,
         hintText: widget.hintText,
         hintStyle: TextStyle(fontSize: hintFontSize),
         border: OutlineInputBorder(
