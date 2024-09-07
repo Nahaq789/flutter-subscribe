@@ -10,9 +10,10 @@ class CrashlyticsService implements ICrashlyticsService {
   }
 
   @override
-  Future<void> recordError(exception, StackTrace stack,
+  Future<void> recordError(dynamic exception, StackTrace stack,
       {String? reason}) async {
     await _crashlytics.recordError(exception, stack, reason: reason);
+    await log(exception.toString());
   }
 
   @override
