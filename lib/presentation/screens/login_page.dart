@@ -53,13 +53,7 @@ class LoginPageState extends ConsumerState<LoginPage> {
     } else {
       setState(() {
         isLoginSuccess = loginResult.isAuth;
-        if (loginResult.statusCode == 401) {
-          errorMessage =
-              "Invalid email or password. Please check your credentials and try again.";
-        } else {
-          errorMessage =
-              "An unexpected error occurred. Please try again later.";
-        }
+        errorMessage = loginResult.errorMessage;
       });
     }
   }

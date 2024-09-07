@@ -5,7 +5,7 @@ import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/domain/repository/auth_i_repository.dart';
 import 'package:subscribe/domain/repository/token_i_repository.dart';
 import 'package:subscribe/domain/models/login_model.dart';
-import 'package:subscribe/exceptions/auth_exception.dart';
+import 'package:subscribe/exceptions/api_exception.dart';
 import 'package:subscribe/presentation/dto/auth_request.dart';
 import 'package:subscribe/presentation/dto/auth_response.dart';
 import 'package:subscribe/services/auth_i_service.dart';
@@ -26,9 +26,9 @@ class AuthService implements IAuthService {
       await _tokenRepository.saveToken(token: TokenModel.fromJson(decodeRes));
 
       return AuthResponse(isAuth: true, errorMessage: "", statusCode: 200);
-    } on AuthException catch (e) {
+    } on ApiException catch (e) {
       return AuthResponse(
-          isAuth: false, errorMessage: e.toString(), statusCode: e.statusCode);
+          isAuth: false, errorMessage: e.message, statusCode: e.statusCode);
     }
   }
 
