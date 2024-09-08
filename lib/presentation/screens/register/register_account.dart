@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:subscribe/presentation/components/enter_verify_code.dart';
 import 'package:subscribe/presentation/components/password_field.dart';
 import 'package:subscribe/presentation/dto/auth_request.dart';
 import 'package:subscribe/services/provider/auth_provider.dart';
@@ -48,18 +49,20 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
     _registerRequest.password = passwordController.text;
 
     final authService = ref.read(authServiceProvider);
-    final registerResult =
-        await authService.registerAccount(auth: _registerRequest);
+    // final registerResult =
+    //     await authService.registerAccount(auth: _registerRequest);
+    isRegisterSuccess = true;
 
     if (!mounted) return;
-    if (registerResult.isAuth && registerResult.errorMessage == '') {
-      Navigator.of(context).pushReplacementNamed('/');
-    } else {
-      setState(() {
-        isRegisterSuccess = registerResult.isAuth;
-        errorMessage = registerResult.errorMessage;
-      });
-    }
+    // if (registerResult.isAuth && registerResult.errorMessage == '') {
+    //   // Navigator.of(context).pushReplacementNamed('/');
+    //   isRegisterSuccess = registerResult.isAuth;
+    // } else {
+    //   setState(() {
+    //     isRegisterSuccess = registerResult.isAuth;
+    //     errorMessage = registerResult.errorMessage;
+    //   });
+    // }
   }
 
   void _validPassword(String password) {
@@ -186,29 +189,62 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                       _validConfirmPassword(passwordController.text, value);
                     }),
                 SizedBox(height: size.height * 0.03),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _submitRegister();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF39D2C0),
-                      foregroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: size.width * 0.05,
-                        vertical: size.height * 0.015,
+                Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          await showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            enableDrag: true,
+                            barrierColor: Colors.black.withOpacity(0.5),
+                            builder: (context) {
+                              return const EnterVerifyCode();
+                            },
+                          );
+                        },
+                        child: Text(
+                          'Enter verify code',
+                          style: TextStyle(
+                              color: const Color(0xFF9489F5),
+                              fontSize: mediumFontSize),
+                        ),
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                      ElevatedButton(
+                        onPressed: () async {
+                          _submitRegister();
+                          isRegisterSuccess
+                              ? await showModalBottomSheet(
+                                  context: context,
+                                  backgroundColor: Colors.transparent,
+                                  isScrollControlled: true,
+                                  enableDrag: true,
+                                  barrierColor: Colors.black.withOpacity(0.5),
+                                  builder: (context) {
+                                    return const EnterVerifyCode();
+                                  },
+                                )
+                              : null;
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF39D2C0),
+                          foregroundColor: Colors.black,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: size.width * 0.05,
+                            vertical: size.height * 0.015,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: Text(
+                          "Register",
+                          style: TextStyle(fontSize: mediumFontSize),
+                        ),
                       ),
-                    ),
-                    child: Text(
-                      "Register Account",
-                      style: TextStyle(fontSize: mediumFontSize),
-                    ),
-                  ),
-                ),
+                    ]),
                 SizedBox(height: size.height * 0.03),
                 Container(
                   decoration: BoxDecoration(
@@ -242,6 +278,15 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                     ],
                   ),
                 ),
+                if (errorMessage != null && !isRegisterSuccess)
+                  Padding(
+                    padding: EdgeInsets.only(top: size.height * 0.02),
+                    child: Text(
+                      errorMessage!,
+                      style: TextStyle(
+                          color: Colors.red, fontSize: mediumFontSize),
+                    ),
+                  ),
               ],
             ),
           ),
