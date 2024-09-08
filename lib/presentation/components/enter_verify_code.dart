@@ -3,12 +3,50 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subscribe/presentation/components/input_verification_code.dart';
+import 'package:subscribe/presentation/dto/auth_request.dart';
+import 'package:subscribe/services/provider/auth_provider.dart';
 
-class EnterVerifyCode extends ConsumerWidget {
-  const EnterVerifyCode({super.key});
+class EnterVerifyCode extends ConsumerStatefulWidget {
+  final String email;
+  final String password;
+
+  const EnterVerifyCode(
+      {super.key, required this.email, required this.password});
+  @override
+  EnterVerifyCodeState createState() => EnterVerifyCodeState();
+}
+
+class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
+  late AuthRequest _verifyRequest;
+  String? verifyCode;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    _verifyRequest = AuthRequest(email: "", password: "", verifyCode: "");
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  Future<void> submitVerifyCode() async {
+    final authService = ref.read(authServiceProvider);
+    setState(() {
+      _verifyRequest.email = widget.email;
+      _verifyRequest.password = widget.password;
+      _verifyRequest.verifyCode = verifyCode;
+    });
+    final result = await authService.confirmCode(auth: _verifyRequest);
+
+    if (!mounted) return;
+    if (result.isAuth && result.errorMessage == '') {
+    } else {}
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final codeNotifier = ref.watch(verificationCodeProvider.notifier);
     bool isLoading = false;
     final size = MediaQuery.of(context).size;
@@ -20,8 +58,6 @@ class EnterVerifyCode extends ConsumerWidget {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
     final baseHeight = screenHeight * 0.6;
-
-    String? code;
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 100),
@@ -77,9 +113,9 @@ class EnterVerifyCode extends ConsumerWidget {
                 ),
                 SizedBox(height: size.height * 0.01),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     codeNotifier.isCodeComplete()
-                        ? code = codeNotifier.getCompleteCode()
+                        ? verifyCode = codeNotifier.getCompleteCode()
                         : null;
                   },
                   style: ElevatedButton.styleFrom(
