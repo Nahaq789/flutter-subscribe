@@ -24,8 +24,8 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
   String? _matchErrorText;
   String? _confirmErrorText;
 
-  bool isRegisterSuccess = false;
-  String? errorMessage;
+  late bool _isRegistering = false;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -44,25 +44,51 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
     super.dispose();
   }
 
-  void _submitRegister() async {
+  Future<void> _submitRegister() async {
+    if (_isRegistering) return;
+
+    setState(() {
+      _isRegistering = true;
+      _errorMessage = null;
+    });
     _registerRequest.email = emailController.text;
     _registerRequest.password = passwordController.text;
 
     final authService = ref.read(authServiceProvider);
-    // final registerResult =
-    //     await authService.registerAccount(auth: _registerRequest);
-    isRegisterSuccess = true;
 
-    if (!mounted) return;
-    // if (registerResult.isAuth && registerResult.errorMessage == '') {
-    //   // Navigator.of(context).pushReplacementNamed('/');
-    //   isRegisterSuccess = registerResult.isAuth;
-    // } else {
-    //   setState(() {
-    //     isRegisterSuccess = registerResult.isAuth;
-    //     errorMessage = registerResult.errorMessage;
-    //   });
-    // }
+    try {
+      final registerResult =
+          await authService.registerAccount(auth: _registerRequest);
+      if (!mounted) return;
+      if (registerResult.isAuth && registerResult.errorMessage == '') {
+        await showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          enableDrag: true,
+          barrierColor: Colors.black.withOpacity(0.5),
+          builder: (context) => EnterVerifyCode(
+            email: _registerRequest.email,
+            password: _registerRequest.password,
+          ),
+        );
+      } else {
+        setState(() {
+          _isRegistering = registerResult.isAuth;
+          _errorMessage = registerResult.errorMessage;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = "An unexpected error occurred. Please try again.";
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isRegistering = false;
+        });
+      }
+    }
   }
 
   void _validPassword(String password) {
@@ -200,9 +226,10 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                             isScrollControlled: true,
                             enableDrag: true,
                             barrierColor: Colors.black.withOpacity(0.5),
-                            builder: (context) {
-                              return const EnterVerifyCode();
-                            },
+                            builder: (context) => EnterVerifyCode(
+                              email: _registerRequest.email,
+                              password: _registerRequest.password,
+                            ),
                           );
                         },
                         child: Text(
@@ -213,21 +240,7 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () async {
-                          _submitRegister();
-                          isRegisterSuccess
-                              ? await showModalBottomSheet(
-                                  context: context,
-                                  backgroundColor: Colors.transparent,
-                                  isScrollControlled: true,
-                                  enableDrag: true,
-                                  barrierColor: Colors.black.withOpacity(0.5),
-                                  builder: (context) {
-                                    return const EnterVerifyCode();
-                                  },
-                                )
-                              : null;
-                        },
+                        onPressed: _isRegistering ? null : _submitRegister,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF39D2C0),
                           foregroundColor: Colors.black,
@@ -239,10 +252,16 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: Text(
-                          "Register",
-                          style: TextStyle(fontSize: mediumFontSize),
-                        ),
+                        child: _isRegistering
+                            ? const SizedBox(
+                                width: 20.0,
+                                height: 20.0,
+                                child: CircularProgressIndicator(),
+                              )
+                            : Text(
+                                "Register",
+                                style: TextStyle(fontSize: mediumFontSize),
+                              ),
                       ),
                     ]),
                 SizedBox(height: size.height * 0.03),
@@ -278,11 +297,11 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                     ],
                   ),
                 ),
-                if (errorMessage != null && !isRegisterSuccess)
+                if (_errorMessage != null)
                   Padding(
                     padding: EdgeInsets.only(top: size.height * 0.02),
                     child: Text(
-                      errorMessage!,
+                      _errorMessage!,
                       style: TextStyle(
                           color: Colors.red, fontSize: mediumFontSize),
                     ),
