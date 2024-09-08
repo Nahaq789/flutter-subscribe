@@ -89,8 +89,7 @@ class AuthRepository implements IAuthRepository {
             AuthException(), 'Authenticate failed', HttpStatus.unauthorized);
       }
 
-      throw ApiException(
-          'HTTP Error: ${response.statusCode}', response.statusCode);
+      throw ApiException(response.body, response.statusCode);
     } on SocketException catch (e) {
       await _apiErrorHandler.handleException(
           e, 'Network error', HttpStatus.serviceUnavailable);
