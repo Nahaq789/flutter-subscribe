@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:subscribe/presentation/components/password_field.dart';
 import 'package:subscribe/presentation/dto/auth_request.dart';
+import 'package:subscribe/services/provider/auth_provider.dart';
 
 class RegisterAccountPage extends ConsumerStatefulWidget {
   const RegisterAccountPage({super.key});
@@ -15,35 +16,65 @@ class RegisterAccountPage extends ConsumerStatefulWidget {
 }
 
 class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
-  late final TextEditingController _emailController;
-  late final TextEditingController _passwordController;
-  late final TextEditingController _confirmPasswordController;
+  late final TextEditingController emailController;
+  late final TextEditingController passwordController;
+  late final TextEditingController confirmPasswordController;
   late AuthRequest _registerRequest;
-  String? _errorText;
+  String? _matchErrorText;
+  String? _confirmErrorText;
+
+  bool isRegisterSuccess = false;
+  String? errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController();
-    _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
+    emailController = TextEditingController();
+    passwordController = TextEditingController();
+    confirmPasswordController = TextEditingController();
+    _registerRequest = AuthRequest(email: "", password: "", verifyCode: "");
   }
 
   @override
   void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _confirmPasswordController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
     super.dispose();
   }
 
-  void _submitRegister() async {}
+  void _submitRegister() async {
+    _registerRequest.email = emailController.text;
+    _registerRequest.password = passwordController.text;
+
+    final authService = ref.read(authServiceProvider);
+    final registerResult =
+        await authService.registerAccount(auth: _registerRequest);
+
+    if (!mounted) return;
+    if (registerResult.isAuth && registerResult.errorMessage == '') {
+      Navigator.of(context).pushReplacementNamed('/');
+    } else {
+      setState(() {
+        isRegisterSuccess = registerResult.isAuth;
+        errorMessage = registerResult.errorMessage;
+      });
+    }
+  }
 
   void _validPassword(String password) {
     setState(() {
-      _errorText = _isValidPassword(password)
+      _matchErrorText = _isValidPassword(password)
           ? null
           : 'Password must be at least 6 characters with upper and lowercase letters.';
+    });
+  }
+
+  void _validConfirmPassword(String password, String confirmPassword) {
+    setState(() {
+      _confirmErrorText = _checkConfirmPassword(password, confirmPassword)
+          ? null
+          : 'Confirm password must be match the password';
     });
   }
 
@@ -52,12 +83,14 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
     return passwordPattarn.hasMatch(password);
   }
 
+  bool _checkConfirmPassword(String password, String confirmPassword) {
+    return password == confirmPassword ? true : false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
-
-    debugPrint(_errorText);
 
     double imageSize =
         isTablet ? size.width * 0.15 : max(size.width * 0.2, 80.0);
@@ -120,8 +153,8 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   labelText: 'Email Address',
                   hintText: 'Enter your email...',
                   isPassword: false,
-                  textController: _emailController,
-                  onChanged: (value) => _emailController.text = value,
+                  textController: emailController,
+                  onChanged: (value) => emailController.text = value,
                   inputFormat: [
                     FilteringTextInputFormatter.allow(
                         RegExp(r'[a-zA-Z0-9@.+_-]'))
@@ -132,26 +165,33 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   labelText: 'Password',
                   hintText: 'Enter your password...',
                   isPassword: true,
-                  textController: _passwordController,
+                  textController: passwordController,
                   onChanged: (value) {
-                    _passwordController.text = value;
+                    passwordController.text = value;
                     _validPassword(value);
+                    _validConfirmPassword(
+                        value, confirmPasswordController.text);
                   },
-                  errorText: _errorText,
+                  errorText: _matchErrorText,
                 ),
                 SizedBox(height: size.height * 0.02),
                 CustomInputField(
-                  labelText: 'Confirm Password',
-                  hintText: 'Re-enter your password...',
-                  isPassword: true,
-                  textController: _confirmPasswordController,
-                  onChanged: (value) => _confirmPasswordController.text = value,
-                ),
+                    labelText: 'Confirm Password',
+                    hintText: 'Re-enter your password...',
+                    isPassword: true,
+                    textController: confirmPasswordController,
+                    errorText: _confirmErrorText,
+                    onChanged: (value) {
+                      confirmPasswordController.text = value;
+                      _validConfirmPassword(passwordController.text, value);
+                    }),
                 SizedBox(height: size.height * 0.03),
                 Align(
                   alignment: Alignment.centerRight,
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      _submitRegister();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF39D2C0),
                       foregroundColor: Colors.black,

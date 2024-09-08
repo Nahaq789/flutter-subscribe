@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:subscribe/domain/models/register_user_model.dart';
 import 'package:subscribe/domain/models/token_model.dart';
 import 'package:subscribe/domain/repository/auth_i_repository.dart';
 import 'package:subscribe/domain/repository/token_i_repository.dart';
@@ -25,7 +27,8 @@ class AuthService implements IAuthService {
 
       await _tokenRepository.saveToken(token: TokenModel.fromJson(decodeRes));
 
-      return AuthResponse(isAuth: true, errorMessage: "", statusCode: 200);
+      return AuthResponse(
+          isAuth: true, errorMessage: "", statusCode: HttpStatus.ok);
     } on ApiException catch (e) {
       return AuthResponse(
           isAuth: false, errorMessage: e.message, statusCode: e.statusCode);
@@ -33,7 +36,16 @@ class AuthService implements IAuthService {
   }
 
   @override
-  Future<void> registerAccount({required AuthRequest auth}) async {
-    try {} catch (e) {}
+  Future<AuthResponse> registerAccount({required AuthRequest auth}) async {
+    try {
+      final registerUser =
+          RegisterUserModel(email: auth.email, password: auth.password);
+      await _authRepository.registerAccount(model: registerUser);
+      return AuthResponse(
+          isAuth: true, errorMessage: '', statusCode: HttpStatus.ok);
+    } on ApiException catch (e) {
+      return AuthResponse(
+          isAuth: false, errorMessage: e.message, statusCode: e.statusCode);
+    }
   }
 }
