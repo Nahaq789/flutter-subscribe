@@ -11,10 +11,10 @@ class AuthResponse {
   /// An error message describing any issues that occurred during authentication.
   ///
   /// This field may be empty if the authentication was successful.
-  final String errorMessage;
+  final String? errorMessage;
 
   /// An error status code.
-  final int statusCode;
+  final int? statusCode;
 
   /// Creates a new [AuthResponse] instance.
   ///

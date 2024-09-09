@@ -12,6 +12,6 @@ class ApiErrorHandler {
     final userMessage =
         RepositoryErrorMessageGenerator.generateUserFriendlyMessage(statusCode);
     _crashlyticsService.log(userMessage);
-    throw ApiException(userMessage, statusCode);
+    throw ApiException(message: userMessage, statusCode: statusCode);
   }
 }
