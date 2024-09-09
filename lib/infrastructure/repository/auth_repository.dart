@@ -44,8 +44,11 @@ class AuthRepository implements IAuthRepository {
             AuthException(), 'Authenticate failed', HttpStatus.unauthorized);
       }
 
+      await _apiErrorHandler.handleException(
+          ApiException(), response.body, response.statusCode);
       throw ApiException(
-          'HTTP Error: ${response.statusCode}', response.statusCode);
+          message: 'HTTP Error: ${response.statusCode}',
+          statusCode: response.statusCode);
     } on SocketException catch (e) {
       await _apiErrorHandler.handleException(
           e, 'Network error', HttpStatus.serviceUnavailable);
@@ -66,7 +69,7 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
-  Future registerAccount({required AuthUserModel model}) async {
+  Future<Response> registerAccount({required AuthUserModel model}) async {
     try {
       final response = await http
           .post(Uri.parse('${baseURL}auth/signup'),
@@ -87,8 +90,9 @@ class AuthRepository implements IAuthRepository {
         await _apiErrorHandler.handleException(
             AuthException(), 'Authenticate failed', HttpStatus.unauthorized);
       }
-
-      throw ApiException(response.body, response.statusCode);
+      _apiErrorHandler.handleException(
+          ApiException(), response.body, response.statusCode);
+      throw ApiException();
     } on SocketException catch (e) {
       await _apiErrorHandler.handleException(
           e, 'Network error', HttpStatus.serviceUnavailable);
@@ -124,7 +128,9 @@ class AuthRepository implements IAuthRepository {
         await _crashlyticsService.log(response.body);
         return response;
       }
-      throw ApiException(response.body, response.statusCode);
+      await _apiErrorHandler.handleException(
+          ApiException(), response.body, response.statusCode);
+      throw ApiException();
     } on SocketException catch (e) {
       await _apiErrorHandler.handleException(
           e, 'Network error', HttpStatus.serviceUnavailable);
