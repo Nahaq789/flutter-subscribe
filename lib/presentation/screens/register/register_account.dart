@@ -17,31 +17,53 @@ class RegisterAccountPage extends ConsumerStatefulWidget {
 }
 
 class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
-  late final TextEditingController emailController;
-  late final TextEditingController passwordController;
-  late final TextEditingController confirmPasswordController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
   late AuthRequest _registerRequest;
   String? _matchErrorText;
   String? _confirmErrorText;
 
-  late bool _isRegistering = false;
+  bool _isRegistering = false;
+  bool _isFormValid = false;
+
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
-    confirmPasswordController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
     _registerRequest = AuthRequest(email: "", password: "", verifyCode: "");
+
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
+    _confirmPasswordController.addListener(_validateForm);
   }
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    confirmPasswordController.dispose();
+    _emailController.removeListener(_validateForm);
+    _passwordController.removeListener(_validateForm);
+    _confirmPasswordController.removeListener(_validateForm);
+
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  void _validateForm() {
+    final isValid = _emailController.text.isNotEmpty &&
+        _isValidPassword(_passwordController.text) &&
+        _checkConfirmPassword(
+            _passwordController.text, _confirmPasswordController.text);
+    if (_isFormValid != isValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
   }
 
   Future<void> _submitRegister() async {
@@ -51,8 +73,8 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
       _isRegistering = true;
       _errorMessage = null;
     });
-    _registerRequest.email = emailController.text;
-    _registerRequest.password = passwordController.text;
+    _registerRequest.email = _emailController.text;
+    _registerRequest.password = _passwordController.text;
 
     final authService = ref.read(authServiceProvider);
 
@@ -182,8 +204,8 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   labelText: 'Email Address',
                   hintText: 'Enter your email...',
                   isPassword: false,
-                  textController: emailController,
-                  onChanged: (value) => emailController.text = value,
+                  textController: _emailController,
+                  onChanged: (value) => _emailController.text = value,
                   inputFormat: [
                     FilteringTextInputFormatter.allow(
                         RegExp(r'[a-zA-Z0-9@.+_-]'))
@@ -194,12 +216,12 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                   labelText: 'Password',
                   hintText: 'Enter your password...',
                   isPassword: true,
-                  textController: passwordController,
+                  textController: _passwordController,
                   onChanged: (value) {
-                    passwordController.text = value;
+                    _passwordController.text = value;
                     _validPassword(value);
                     _validConfirmPassword(
-                        value, confirmPasswordController.text);
+                        value, _confirmPasswordController.text);
                   },
                   errorText: _matchErrorText,
                 ),
@@ -208,11 +230,11 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                     labelText: 'Confirm Password',
                     hintText: 'Re-enter your password...',
                     isPassword: true,
-                    textController: confirmPasswordController,
+                    textController: _confirmPasswordController,
                     errorText: _confirmErrorText,
                     onChanged: (value) {
-                      confirmPasswordController.text = value;
-                      _validConfirmPassword(passwordController.text, value);
+                      _confirmPasswordController.text = value;
+                      _validConfirmPassword(_passwordController.text, value);
                     }),
                 SizedBox(height: size.height * 0.03),
                 Row(
@@ -240,7 +262,9 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: _isRegistering ? null : _submitRegister,
+                        onPressed: _isFormValid && !_isRegistering
+                            ? _submitRegister
+                            : null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF39D2C0),
                           foregroundColor: Colors.black,

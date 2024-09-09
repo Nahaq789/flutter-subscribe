@@ -7,9 +7,6 @@ import 'package:subscribe/presentation/components/password_field.dart';
 import 'package:subscribe/presentation/dto/auth_request.dart';
 import 'package:subscribe/services/provider/auth_provider.dart';
 
-final emailProvider = StateProvider<String>((ref) => '');
-final passwordProvider = StateProvider<String>((ref) => '');
-
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
 
@@ -18,43 +15,80 @@ class LoginPage extends ConsumerStatefulWidget {
 }
 
 class LoginPageState extends ConsumerState<LoginPage> {
-  late TextEditingController emailController;
-  late TextEditingController passwordController;
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
   late AuthRequest _loginRequest;
   bool isLoginSuccess = false;
-  String? errorMessage;
+  String? _errorMessage;
+
+  bool _isLoading = false;
+  bool _isFormValid = false;
 
   @override
   void initState() {
     super.initState();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
     _loginRequest = AuthRequest(email: "", password: "", verifyCode: "");
+
+    _emailController.addListener(_validateForm);
+    _passwordController.addListener(_validateForm);
   }
 
   @override
   void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
+    _emailController.removeListener(_validateForm);
+    _passwordController.removeListener(_validateForm);
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  void _submitLogin() async {
-    _loginRequest.email = emailController.text;
-    _loginRequest.password = passwordController.text;
+  void _validateForm() {
+    final isValid =
+        _emailController.text.isNotEmpty && _passwordController.text.isNotEmpty;
+    if (_isFormValid != isValid) {
+      setState(() {
+        _isFormValid = isValid;
+      });
+    }
+  }
+
+  Future<void> _submitLogin() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+    _loginRequest.email = _emailController.text;
+    _loginRequest.password = _passwordController.text;
 
     final authService = ref.read(authServiceProvider);
-    final loginResult = await authService.login(auth: _loginRequest);
 
-    if (!mounted) return;
+    try {
+      final loginResult = await authService.login(auth: _loginRequest);
 
-    if (loginResult.isAuth && loginResult.errorMessage == '') {
-      Navigator.of(context).pushReplacementNamed('/register');
-    } else {
+      if (!mounted) return;
+
+      if (loginResult.isAuth && loginResult.errorMessage == '') {
+        Navigator.of(context).pushReplacementNamed('/register');
+      } else {
+        setState(() {
+          isLoginSuccess = loginResult.isAuth;
+          _errorMessage = loginResult.errorMessage;
+        });
+      }
+    } catch (e) {
       setState(() {
-        isLoginSuccess = loginResult.isAuth;
-        errorMessage = loginResult.errorMessage;
+        _errorMessage = 'An unexpected error occurred. Please try again.';
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -124,16 +158,16 @@ class LoginPageState extends ConsumerState<LoginPage> {
                   labelText: 'Email Address',
                   hintText: 'Enter your email...',
                   isPassword: false,
-                  textController: emailController,
-                  onChanged: (value) => {emailController.text = value},
+                  textController: _emailController,
+                  onChanged: (value) => _emailController.text = value,
                 ),
                 SizedBox(height: size.height * 0.02),
                 CustomInputField(
                   labelText: 'Password',
                   hintText: "Enter your password...",
                   isPassword: true,
-                  textController: passwordController,
-                  onChanged: (value) => {passwordController.text = value},
+                  textController: _passwordController,
+                  onChanged: (value) => _passwordController.text = value,
                 ),
                 SizedBox(height: size.height * 0.03),
                 Row(
@@ -149,7 +183,8 @@ class LoginPageState extends ConsumerState<LoginPage> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: _submitLogin,
+                      onPressed:
+                          (_isFormValid && !_isLoading) ? _submitLogin : null,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF39D2C0),
                         foregroundColor: Colors.black,
@@ -161,10 +196,15 @@ class LoginPageState extends ConsumerState<LoginPage> {
                           borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      child: Text(
-                        "Login",
-                        style: TextStyle(fontSize: mediumFontSize),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20.0,
+                              height: 20.0,
+                              child: CircularProgressIndicator())
+                          : Text(
+                              "Login",
+                              style: TextStyle(fontSize: mediumFontSize),
+                            ),
                     ),
                   ],
                 ),
@@ -189,11 +229,11 @@ class LoginPageState extends ConsumerState<LoginPage> {
                     ),
                   ],
                 ),
-                if (errorMessage != null && !isLoginSuccess)
+                if (_errorMessage != null && !isLoginSuccess)
                   Padding(
                     padding: EdgeInsets.only(top: size.height * 0.02),
                     child: Text(
-                      errorMessage!,
+                      _errorMessage!,
                       style: TextStyle(
                           color: Colors.red, fontSize: mediumFontSize),
                     ),
