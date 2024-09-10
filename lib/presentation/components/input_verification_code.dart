@@ -31,8 +31,10 @@ class VerificationCodeNotifier extends StateNotifier<List<String>> {
 
 class InputVerificationCode extends ConsumerWidget {
   final int index;
+  final ValueChanged<String>? onChanged;
 
-  const InputVerificationCode({super.key, required this.index});
+  const InputVerificationCode(
+      {super.key, required this.index, required this.onChanged});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -56,6 +58,7 @@ class InputVerificationCode extends ConsumerWidget {
           if (value.isEmpty && 0 < index) {
             FocusScope.of(context).previousFocus();
           }
+          onChanged!("unko");
         },
         controller: TextEditingController(text: codeState[index]),
       ),

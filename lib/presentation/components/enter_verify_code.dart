@@ -18,11 +18,15 @@ class EnterVerifyCode extends ConsumerStatefulWidget {
 
 class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
   late AuthRequest _verifyRequest;
-  String? verifyCode;
+  late String _verifyCode;
+  bool _isLoading = false;
+  bool _isValidCode = false;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
+    _verifyCode = "";
     _verifyRequest = AuthRequest(email: "", password: "", verifyCode: "");
   }
 
@@ -31,24 +35,51 @@ class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
     super.dispose();
   }
 
-  Future<void> submitVerifyCode() async {
-    final authService = ref.read(authServiceProvider);
+  Future<void> _submitVerifyCode() async {
+    if (_isLoading || !_isValidCode) return;
     setState(() {
+      _isLoading = true;
+      _errorMessage = null;
       _verifyRequest.email = widget.email;
       _verifyRequest.password = widget.password;
-      _verifyRequest.verifyCode = verifyCode;
+      _verifyRequest.verifyCode = _verifyCode;
     });
-    final result = await authService.confirmCode(auth: _verifyRequest);
 
-    if (!mounted) return;
-    if (result.isAuth && result.errorMessage == '') {
-    } else {}
+    final authService = ref.read(authServiceProvider);
+
+    try {
+      final result = await authService.confirmCode(auth: _verifyRequest);
+
+      if (!mounted) return;
+      if (result.isAuth && result.errorMessage == '') {
+        debugPrint("hoge");
+      } else {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = result.errorMessage;
+        });
+      }
+    } catch (e) {
+      _errorMessage = "An unexpected error occurred. Please try again.";
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _validateVerifyCode(String code) {
+    setState(() {
+      _verifyCode = code;
+      _isValidCode = code.length == 6 && int.tryParse(code) != null;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final codeNotifier = ref.watch(verificationCodeProvider.notifier);
-    bool isLoading = false;
     final size = MediaQuery.of(context).size;
     final isTablet = size.width > 600;
 
@@ -62,10 +93,10 @@ class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 100),
       height:
-          keyboardHeight > 0 ? baseHeight + keyboardHeight * 0.3 : baseHeight,
+          keyboardHeight > 0 ? baseHeight + keyboardHeight * 0.35 : baseHeight,
       curve: Curves.easeInOut,
       child: Container(
-        height: baseHeight, // 画面の90%の高さ
+        height: baseHeight,
         decoration: const BoxDecoration(
           color: Color.fromARGB(255, 38, 42, 45),
           borderRadius: BorderRadius.only(
@@ -96,44 +127,75 @@ class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
-                      6, (index) => InputVerificationCode(index: index)),
-                ),
-                SizedBox(height: size.height * 0.02),
-                TextButton(
-                  onPressed: () {
-                    codeNotifier.clearAllCode();
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                  child: Text(
-                    'Clear all code',
-                    style: TextStyle(
-                        color: const Color(0xFF9489F5),
-                        fontSize: mediumFontSize),
-                  ),
-                ),
-                SizedBox(height: size.height * 0.01),
-                ElevatedButton(
-                  onPressed: () async {
-                    codeNotifier.isCodeComplete()
-                        ? verifyCode = codeNotifier.getCompleteCode()
-                        : null;
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF39D2C0),
-                    foregroundColor: Colors.black,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: size.width * 0.05,
-                      vertical: size.height * 0.015,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
+                    6,
+                    (index) => InputVerificationCode(
+                      index: index,
+                      onChanged: (value) =>
+                          _validateVerifyCode(codeNotifier.getCompleteCode()),
                     ),
                   ),
-                  child: Text(
-                    "Verify Code",
-                    style: TextStyle(fontSize: mediumFontSize),
-                  ),
                 ),
+                SizedBox(height: size.height * 0.03),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        codeNotifier.clearAllCode();
+                        _validateVerifyCode("");
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                      child: Text(
+                        'Clear all code',
+                        style: TextStyle(
+                            color: const Color(0xFF9489F5),
+                            fontSize: mediumFontSize),
+                      ),
+                    ),
+                    SizedBox(
+                      height: size.height * 0.01,
+                      width: size.width * 0.07,
+                    ),
+                    ElevatedButton(
+                      onPressed: !_isLoading && _isValidCode
+                          ? _submitVerifyCode
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF39D2C0),
+                        foregroundColor: Colors.black,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.04,
+                          vertical: size.height * 0.015,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20.0,
+                              height: 20.0,
+                              child: CircularProgressIndicator(),
+                            )
+                          : Text(
+                              "Verify Code",
+                              style: TextStyle(fontSize: mediumFontSize),
+                            ),
+                    ),
+                  ],
+                ),
+                if (_errorMessage != null)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: size.height * 0.02,
+                    ),
+                    child: Text(
+                      _errorMessage!,
+                      style: TextStyle(
+                          color: Colors.red, fontSize: mediumFontSize),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
               ],
             ),
           ],
