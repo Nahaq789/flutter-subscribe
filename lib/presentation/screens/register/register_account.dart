@@ -238,56 +238,57 @@ class RegisterAccountPageState extends ConsumerState<RegisterAccountPage> {
                     }),
                 SizedBox(height: size.height * 0.03),
                 Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () async {
-                          await showModalBottomSheet(
-                            context: context,
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            enableDrag: true,
-                            barrierColor: Colors.black.withOpacity(0.5),
-                            builder: (context) => EnterVerifyCode(
-                              email: _registerRequest.email,
-                              password: _registerRequest.password,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    TextButton(
+                      onPressed: () async {
+                        await showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          enableDrag: true,
+                          barrierColor: Colors.black.withOpacity(0.5),
+                          builder: (context) => EnterVerifyCode(
+                            email: _registerRequest.email,
+                            password: _registerRequest.password,
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Enter verify code',
+                        style: TextStyle(
+                            color: const Color(0xFF9489F5),
+                            fontSize: mediumFontSize),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: _isFormValid && !_isRegistering
+                          ? _submitRegister
+                          : null,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF39D2C0),
+                        foregroundColor: Colors.black,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: size.width * 0.05,
+                          vertical: size.height * 0.015,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: _isRegistering
+                          ? const SizedBox(
+                              width: 20.0,
+                              height: 20.0,
+                              child: CircularProgressIndicator(),
+                            )
+                          : Text(
+                              "Register",
+                              style: TextStyle(fontSize: mediumFontSize),
                             ),
-                          );
-                        },
-                        child: Text(
-                          'Enter verify code',
-                          style: TextStyle(
-                              color: const Color(0xFF9489F5),
-                              fontSize: mediumFontSize),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: _isFormValid && !_isRegistering
-                            ? _submitRegister
-                            : null,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF39D2C0),
-                          foregroundColor: Colors.black,
-                          padding: EdgeInsets.symmetric(
-                            horizontal: size.width * 0.05,
-                            vertical: size.height * 0.015,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                        ),
-                        child: _isRegistering
-                            ? const SizedBox(
-                                width: 20.0,
-                                height: 20.0,
-                                child: CircularProgressIndicator(),
-                              )
-                            : Text(
-                                "Register",
-                                style: TextStyle(fontSize: mediumFontSize),
-                              ),
-                      ),
-                    ]),
+                    ),
+                  ],
+                ),
                 SizedBox(height: size.height * 0.03),
                 Container(
                   decoration: BoxDecoration(

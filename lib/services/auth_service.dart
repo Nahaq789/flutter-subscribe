@@ -53,7 +53,9 @@ class AuthService implements IAuthService {
   Future<AuthResponse> confirmCode({required AuthRequest auth}) async {
     try {
       final confirmUser = AuthUserModel(
-          email: auth.email, password: auth.password, verifyCode: '');
+          email: auth.email,
+          password: auth.password,
+          verifyCode: auth.verifyCode);
       await _authRepository.confirmCode(model: confirmUser);
       return AuthResponse(
           isAuth: true, errorMessage: '', statusCode: HttpStatus.ok);

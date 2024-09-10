@@ -13,7 +13,7 @@ class AuthRequest {
   /// An optional verification code for two-factor authentication.
   ///
   /// This field can be null if not used in the authentication process.
-  String? verifyCode;
+  String verifyCode;
 
   /// Creates a new [AuthRequest] instance.
   ///
@@ -24,5 +24,6 @@ class AuthRequest {
   /// ```dart
   /// var request = AuthRequest(email: 'user@example.com', password: 'securepass');
   /// ```
-  AuthRequest({required this.email, required this.password, this.verifyCode});
+  AuthRequest(
+      {required this.email, required this.password, required this.verifyCode});
 }
