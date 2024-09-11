@@ -52,7 +52,7 @@ class EnterVerifyCodeState extends ConsumerState<EnterVerifyCode> {
 
       if (!mounted) return;
       if (result.isAuth && result.errorMessage == '') {
-        debugPrint("hoge");
+        Navigator.of(context).pushReplacementNamed('/congratulations');
       } else {
         setState(() {
           _isLoading = false;
