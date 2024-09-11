@@ -136,3 +136,54 @@ app.*.symbols
 !/packages/flutter_tools/test/data/dart_dependencies_test/**/.packages
 !/dev/ci/**/Gemfile.lock
 !.vscode/settings.json
+
+.env.dev
+
+# Firebase関連
+google-services.json
+GoogleService-Info.plist
+firebase_app_id_file.json
+firebase_options.dart
+firepit-log.txt
+
+# Crashlytics関連
+crashlytics-build.properties
+com_crashlytics_export_strings.xml
+
+# ファイアベース設定ファイル（環境別の場合）
+.firebaserc
+firebase.json
+
+# ローカル設定ファイル
+local.properties
+
+# Flutterのgenerated_plugin_registrant.dart（既に含まれていますが、念のため）
+**/generated_plugin_registrant.dart
+
+# Dartのパブキャッシュ（既に含まれていますが、念のため）
+.pub-cache/
+
+# Flutter/Dartのパッケージ依存関係ファイル（既に含まれていますが、念のため）
+.packages
+.pub/
+
+# ビルド出力ディレクトリ（既に含まれていますが、念のため）
+build/
+
+# Xcodeのワークスペース設定（既に含まれていますが、念のため）
+*.xcworkspace
+
+# Android Studioの設定ファイル（既に含まれていますが、念のため）
+.idea/
+
+# VSCodeの設定ファイル（既に含まれていますが、念のため）
+.vscode/
+
+# macOSのシステムファイル（既に含まれていますが、念のため）
+.DS_Store
+
+# 環境変数ファイル（既に含まれていますが、念のため）
+.env*
+
+ios/Debug.xcconfig
+ios/Config.xcconfig
